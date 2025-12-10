@@ -282,6 +282,25 @@
             color: var(--text-primary);
         }
 
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--carthage-blue);
+        }
+
+        .input-group input[type="text"]::placeholder {
+            color: var(--text-muted);
+        }
+
         .input-group textarea {
             width: 100%;
             padding: 12px;
@@ -301,6 +320,13 @@
 
         .input-group textarea::placeholder {
             color: var(--text-muted);
+        }
+
+        /* Assignment Name Section */
+        .assignment-name-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
         }
 
         /* Output Panel */
@@ -717,6 +743,14 @@
                                 </div>
                             </div>
                         </label>
+                    </div>
+
+                    <!-- Assignment Name -->
+                    <div class="assignment-name-section">
+                        <div class="input-group">
+                            <label for="assignmentName">Assignment Name (optional)</label>
+                            <input type="text" id="assignmentName" placeholder="e.g., Midterm Essay, Project 2, Lab 5...">
+                        </div>
                     </div>
 
                     <!-- Rationale Editor -->
@@ -1139,6 +1173,9 @@
                 });
             });
 
+            // Assignment name
+            document.getElementById('assignmentName').addEventListener('input', updateOutput);
+
             // Include options
             document.getElementById('includeRationale').addEventListener('change', updateOutput);
             document.getElementById('includeAcceptablePlanning').addEventListener('change', updateOutput);
@@ -1195,6 +1232,7 @@
 
         function updateOutput() {
             const category = document.querySelector('input[name="category"]:checked').value;
+            const assignmentName = document.getElementById('assignmentName').value.trim();
             const includeRationale = document.getElementById('includeRationale').checked;
             const includeAcceptable = category === 'planning' 
                 ? document.getElementById('includeAcceptablePlanning').checked
@@ -1268,7 +1306,11 @@
             let html = `<div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px;">`;
             html += `<h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 20px 0; padding-bottom: 16px; border-bottom: 2px solid ${borderColors[category]};">`;
             html += svgIcons[category];
-            html += ` ${data.title}</h3>`;
+            if (assignmentName) {
+                html += ` ${assignmentName}: ${data.title}</h3>`;
+            } else {
+                html += ` ${data.title}</h3>`;
+            }
 
             if (includeRationale) {
                 html += `<div style="margin-bottom: 20px;">`;
@@ -1303,7 +1345,11 @@
             let displayHtml = `<div class="policy-card">`;
             displayHtml += `<div class="policy-header ${colorClasses[category]}">`;
             displayHtml += svgIcons[category];
-            displayHtml += `<h3>${data.title}</h3>`;
+            if (assignmentName) {
+                displayHtml += `<h3>${assignmentName}: ${data.title}</h3>`;
+            } else {
+                displayHtml += `<h3>${data.title}</h3>`;
+            }
             displayHtml += `</div>`;
 
             if (includeRationale) {
@@ -1340,7 +1386,11 @@
 
             // Generate text output
             let text = '';
-            text += `AI USE POLICY\n${data.title}\n\n`;
+            if (assignmentName) {
+                text += `${assignmentName}: AI USE POLICY\n${data.title}\n\n`;
+            } else {
+                text += `AI USE POLICY\n${data.title}\n\n`;
+            }
 
             if (includeRationale) {
                 text += `RATIONALE\n${rationaleText}\n\n`;
@@ -1420,6 +1470,9 @@
             // Reset category
             document.querySelector('input[name="category"][value="none"]').checked = true;
             
+            // Reset assignment name
+            document.getElementById('assignmentName').value = '';
+            
             // Reset include options
             document.getElementById('includeRationale').checked = true;
             document.getElementById('includeAcceptablePlanning').checked = true;
@@ -1455,6 +1508,7 @@
 
         function generateShareUrl() {
             const category = document.querySelector('input[name="category"]:checked').value;
+            const assignmentName = document.getElementById('assignmentName').value;
             const includeRationale = document.getElementById('includeRationale').checked ? '1' : '0';
             const includeAcceptable = category === 'planning' 
                 ? document.getElementById('includeAcceptablePlanning').checked ? '1' : '0'
@@ -1485,6 +1539,7 @@
 
             const params = new URLSearchParams();
             params.set('cat', category);
+            if (assignmentName) params.set('an', assignmentName);
             params.set('ir', includeRationale);
             params.set('ia', includeAcceptable);
             params.set('iu', includeUnacceptable);
@@ -1522,6 +1577,11 @@
             const category = params.get('cat');
             const categoryRadio = document.querySelector(`input[name="category"][value="${category}"]`);
             if (categoryRadio) categoryRadio.checked = true;
+            
+            // Set assignment name
+            if (params.has('an')) {
+                document.getElementById('assignmentName').value = params.get('an');
+            }
             
             // Set include options
             if (params.has('ir')) {
