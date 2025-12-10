@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Use Policy Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #fafaf9;
+            --bg-secondary: #ffffff;
+            --text-primary: #1c1917;
+            --text-secondary: #57534e;
+            --text-muted: #a8a29e;
+            --border: #e7e5e4;
+            --border-focus: #d6d3d1;
+            
+            /* Carthage College inspired colors */
+            --carthage-blue: #003366;
+            --carthage-blue-dark: #002244;
+            --carthage-blue-light: #004488;
+            --carthage-red: #9e1b32;
+            --carthage-red-dark: #7a1527;
+            --carthage-red-light: #b42d45;
+            
+            --red-bg: #fef2f2;
+            --red-border: #fecaca;
+            --red-accent: #dc2626;
+            --red-text: #991b1b;
+            
+            --yellow-bg: #fefce8;
+            --yellow-border: #fef08a;
+            --yellow-accent: #ca8a04;
+            --yellow-text: #854d0e;
+            
+            --green-bg: #f0fdf4;
+            --green-border: #bbf7d0;
+            --green-accent: #16a34a;
+            --green-text: #166534;
+            
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-lg: 0 10px 40px rgba(0,0,0,0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 48px;
+            padding: 32px;
+            background: linear-gradient(135deg, var(--carthage-blue) 0%, var(--carthage-blue-dark) 100%);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+        }
+
+        h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            border: 2px solid var(--carthage-red);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(to bottom, #ffffff, #fafaf9);
+            position: relative;
+        }
+
+        .panel-header h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .panel-content {
+            padding: 24px;
+        }
+
+        /* Category Selection */
+        .category-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .category-option {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .category-option input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .category-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border);
+            transition: all 0.2s ease;
+        }
+
+        .category-option:hover .category-card {
+            border-color: var(--border-focus);
+        }
+
+        .category-option input:checked + .category-card.red {
+            background: var(--red-bg);
+            border-color: var(--red-accent);
+        }
+
+        .category-option input:checked + .category-card.yellow {
+            background: var(--yellow-bg);
+            border-color: var(--yellow-accent);
+        }
+
+        .category-option input:checked + .category-card.green {
+            background: var(--green-bg);
+            border-color: var(--green-accent);
+        }
+
+        .category-icon {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+        }
+
+        .category-info h3 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .category-info p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Options Section */
+        .options-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .options-section h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--carthage-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--carthage-blue);
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            font-size: 0.95rem;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Custom Input */
+        .custom-input-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .custom-input-section h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--carthage-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-primary);
+        }
+
+        .input-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.2s ease;
+        }
+
+        .input-group textarea:focus {
+            outline: none;
+            border-color: var(--carthage-blue);
+        }
+
+        .input-group textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Output Panel */
+        .output-panel {
+            position: sticky;
+            top: 24px;
+        }
+
+        .output-preview {
+            background: #1c1917;
+            color: #fafaf9;
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            min-height: 300px;
+            white-space: pre-wrap;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .output-preview .policy-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #3f3f46;
+        }
+
+        .output-preview .policy-section {
+            margin-bottom: 16px;
+        }
+
+        .output-preview .policy-section-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #d6d3d1;
+        }
+
+        .output-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--carthage-blue);
+            color: var(--bg-secondary);
+        }
+
+        .btn-primary:hover {
+            background: var(--carthage-blue-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .copy-success {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--green-accent);
+            color: white;
+            padding: 12px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .copy-success.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Collapsible sections */
+        .collapsible-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 8px 0;
+        }
+
+        .collapsible-header h4 {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--carthage-blue);
+        }
+
+        .collapsible-header .toggle-icon {
+            transition: transform 0.2s ease;
+        }
+
+        .collapsible-header.open .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            display: none;
+            padding-top: 12px;
+        }
+
+        .collapsible-content.open {
+            display: block;
+        }
+
+        .acceptable-uses-group,
+        .unacceptable-uses-group {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Tabs */
+        .output-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            background: var(--bg-primary);
+            padding: 4px;
+            border-radius: var(--radius-sm);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: var(--bg-secondary);
+            color: var(--carthage-blue);
+            box-shadow: var(--shadow);
+            font-weight: 600;
+        }
+
+        /* HTML Preview */
+        .output-preview-html {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            min-height: 300px;
+            overflow: auto;
+        }
+
+        .policy-card {
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .policy-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .policy-header.red {
+            border-bottom-color: var(--red-accent);
+        }
+
+        .policy-header.yellow {
+            border-bottom-color: var(--yellow-accent);
+        }
+
+        .policy-header.green {
+            border-bottom-color: var(--green-accent);
+        }
+
+        .policy-header svg {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+        }
+
+        .policy-header h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .policy-section {
+            margin-bottom: 20px;
+        }
+
+        .policy-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .policy-section h4 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .policy-section p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .policy-section ul {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        .policy-section ul li {
+            margin-bottom: 4px;
+        }
+
+        /* Use categories */
+        .use-category {
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .use-category:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .use-category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .use-category-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-left: 3px solid var(--carthage-red);
+            padding-left: 8px;
+        }
+
+        .toggle-all-btn {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-all-btn:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .section-toggle-btn {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            margin-bottom: 12px;
+        }
+
+        .section-toggle-btn:hover {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+
+        /* Student view (read-only) styles */
+        .student-view .main-grid {
+            grid-template-columns: 1fr;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .student-view .config-panel {
+            display: none;
+        }
+
+        .student-view .output-actions {
+            display: none;
+        }
+
+        .student-view .output-tabs {
+            display: none;
+        }
+
+        .student-view .output-panel {
+            position: static;
+        }
+
+        .student-view header .subtitle {
+            display: none;
+        }
+
+        .student-view .output-preview-html {
+            background: var(--bg-secondary);
+            border: none;
+            padding: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Use Policy Generator</h1>
+            <p class="subtitle">Create clear, consistent AI use policies for your assignments. Select a category and customize the details.</p>
+        </header>
+
+        <div class="main-grid">
+            <div class="panel config-panel">
+                <div class="panel-header">
+                    <h2>Configure Policy</h2>
+                </div>
+                <div class="panel-content">
+                    <!-- Category Selection -->
+                    <div class="category-options">
+                        <label class="category-option">
+                            <input type="radio" name="category" value="none" checked>
+                            <div class="category-card red">
+                                <svg class="category-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="24" cy="24" r="22" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+                                    <circle cx="24" cy="24" r="16" fill="#fecaca"/>
+                                    <path d="M16 16L32 32M32 16L16 32" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+                                </svg>
+                                <div class="category-info">
+                                    <h3>No AI Use Permitted</h3>
+                                    <p>Complete the assignment without any AI assistance.</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="category-option">
+                            <input type="radio" name="category" value="planning">
+                            <div class="category-card yellow">
+                                <svg class="category-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="24" cy="24" r="22" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
+                                    <circle cx="24" cy="24" r="16" fill="#fef08a"/>
+                                    <circle cx="24" cy="24" r="3" fill="#ca8a04"/>
+                                    <polygon points="24,10 27,22 24,24 21,22" fill="#dc2626"/>
+                                    <polygon points="24,38 21,26 24,24 27,26" fill="#f5f5f4"/>
+                                    <polygon points="10,24 22,21 24,24 22,27" fill="#f5f5f4"/>
+                                    <polygon points="38,24 26,27 24,24 26,21" fill="#f5f5f4"/>
+                                    <circle cx="24" cy="24" r="10" stroke="#ca8a04" stroke-width="1.5" fill="none"/>
+                                </svg>
+                                <div class="category-info">
+                                    <h3>AI for Planning and Feedback Only</h3>
+                                    <p>Use AI to organize thoughts or improve work, but core ideas must be your own.</p>
+                                </div>
+                            </div>
+                        </label>
+
+                        <label class="category-option">
+                            <input type="radio" name="category" value="full">
+                            <div class="category-card green">
+                                <svg class="category-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <circle cx="24" cy="24" r="22" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+                                    <circle cx="24" cy="24" r="16" fill="#bbf7d0"/>
+                                    <path d="M16 24L22 30L34 18" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <div class="category-info">
+                                    <h3>AI Allowed for Any Purpose</h3>
+                                    <p>AI may be used throughout. You must be able to explain all submitted work.</p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Include Options -->
+                    <div class="options-section">
+                        <h3>Include in Output</h3>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="includeRationale" checked>
+                                <label for="includeRationale">Rationale statement</label>
+                            </div>
+                            <div class="checkbox-item" id="acceptableUsesOption">
+                                <input type="checkbox" id="includeAcceptable" checked>
+                                <label for="includeAcceptable">Acceptable uses list</label>
+                            </div>
+                            <div class="checkbox-item" id="unacceptableUsesOption">
+                                <input type="checkbox" id="includeUnacceptable" checked>
+                                <label for="includeUnacceptable">Unacceptable uses list</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acceptable Uses Selection (Planning) -->
+                    <div class="acceptable-uses-group" id="planningUsesGroup">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <h4>Select Acceptable Uses</h4>
+                            <svg class="toggle-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="checkbox-group" id="planningUsesList">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Acceptable Uses Selection (Full) -->
+                    <div class="acceptable-uses-group hidden" id="fullUsesGroup">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <h4>Select Acceptable Uses</h4>
+                            <svg class="toggle-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="checkbox-group" id="fullUsesList">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unacceptable Uses Selection -->
+                    <div class="unacceptable-uses-group" id="unacceptableUsesGroup">
+                        <div class="collapsible-header" onclick="toggleCollapsible(this)">
+                            <h4>Select Unacceptable Uses</h4>
+                            <svg class="toggle-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="collapsible-content">
+                            <div class="checkbox-group" id="unacceptableUsesList">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Additions -->
+                    <div class="custom-input-section">
+                        <h3>Custom Additions</h3>
+                        <div class="input-group">
+                            <label for="customRationale">Additional Rationale</label>
+                            <textarea id="customRationale" placeholder="Add any custom rationale text..."></textarea>
+                        </div>
+                        <div class="input-group" id="customAcceptableGroup">
+                            <label for="customAcceptable">Additional Acceptable Uses (one per line)</label>
+                            <textarea id="customAcceptable" placeholder="Enter custom acceptable uses..."></textarea>
+                        </div>
+                        <div class="input-group" id="customUnacceptableGroup">
+                            <label for="customUnacceptable">Additional Unacceptable Uses (one per line)</label>
+                            <textarea id="customUnacceptable" placeholder="Enter custom unacceptable uses..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel output-panel">
+                <div class="panel-header">
+                    <h2>Generated Policy</h2>
+                </div>
+                <div class="panel-content">
+                    <div class="output-tabs">
+                        <button class="tab-btn active" data-tab="html" onclick="switchTab('html')">Formatted</button>
+                        <button class="tab-btn" data-tab="text" onclick="switchTab('text')">Plain Text</button>
+                    </div>
+                    <div class="output-preview-html" id="outputPreviewHtml">
+                        <!-- HTML content appears here -->
+                    </div>
+                    <div class="output-preview hidden" id="outputPreview">
+                        <!-- Text content appears here -->
+                    </div>
+                    <div class="output-actions">
+                        <button class="btn btn-primary" onclick="copyToClipboard()">Copy to Clipboard</button>
+                        <button class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                    </div>
+                    <div class="output-actions" style="margin-top: 8px;">
+                        <button class="btn btn-secondary" onclick="shareWithColleagues()">Share with Colleagues</button>
+                        <button class="btn btn-secondary" onclick="shareWithStudents()">Share with Students</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="copy-success" id="copySuccess">Copied to clipboard!</div>
+
+    <script>
+        // Data
+        const categories = {
+            none: {
+                title: "No AI use is permitted at all",
+                rationale: "This assignment assesses your individual understanding and skills without external assistance. The value is in thinking through and grappling with the material on your own.",
+                acceptableUses: {},
+                unacceptableUses: {
+                    "General": [
+                        "Using AI to generate any content for submission",
+                        "Using AI to answer questions about the assignment",
+                        "Using AI to explain concepts related to the assignment",
+                        "Using AI to check or verify your work"
+                    ]
+                }
+            },
+            planning: {
+                title: "AI is permitted for planning and feedback only",
+                rationale: "You may use AI to organize your thoughts or improve your work, but the core ideas and execution must be your own. The value is in doing the difficult work yourself while learning to use AI as a supportive tool.",
+                acceptableUses: {
+                    "Planning and Organization": [
+                        "Brainstorming and generating initial ideas",
+                        "Creating outlines or organizing structure",
+                        "Breaking a large problem into smaller steps",
+                        "Generating questions to consider about a topic",
+                        "Clarifying assignment instructions"
+                    ],
+                    "Research and Understanding": [
+                        "Explaining concepts or terminology you do not understand",
+                        "Summarizing readings or research sources",
+                        "Researching historical or cultural context for a work",
+                        "Analyzing existing works for technique or structure",
+                        "Discussing interpretation of texts, images, or performances"
+                    ],
+                    "Feedback and Revision": [
+                        "Getting feedback on drafts you have written",
+                        "Checking grammar, spelling, and clarity",
+                        "Suggesting ways to strengthen an argument",
+                        "Identifying gaps or weaknesses in your work",
+                        "Getting feedback on artist statements or project descriptions"
+                    ],
+                    "Technical Assistance": [
+                        "Debugging code or explaining error messages",
+                        "Reviewing your solutions for logical errors"
+                    ],
+                    "Creative Exploration": [
+                        "Exploring different artistic styles or approaches",
+                        "Getting feedback on creative choices like composition, color, or pacing",
+                        "Generating prompts or constraints to spark creativity"
+                    ]
+                },
+                unacceptableUses: {
+                    "Integrity": [
+                        "Having AI generate content that you submit as your own work",
+                        "Copying AI explanations directly into your submission",
+                        "Letting AI make decisions about your core arguments or solutions"
+                    ]
+                }
+            },
+            full: {
+                title: "AI is allowed for any purpose in this assignment",
+                rationale: "The goal is the final product and your ability to evaluate and explain it, regardless of how you created it. The value is in learning to direct AI effectively and critically assess its output.",
+                acceptableUses: {
+                    "Planning and Organization": [
+                        "Brainstorming and generating initial ideas",
+                        "Creating outlines or organizing structure",
+                        "Breaking a large problem into smaller steps",
+                        "Generating questions to consider about a topic",
+                        "Clarifying assignment instructions"
+                    ],
+                    "Research and Understanding": [
+                        "Explaining concepts or terminology you do not understand",
+                        "Summarizing readings or research sources",
+                        "Researching historical or cultural context for a work",
+                        "Analyzing existing works for technique or structure",
+                        "Discussing interpretation of texts, images, or performances"
+                    ],
+                    "Feedback and Revision": [
+                        "Getting feedback on drafts you have written",
+                        "Checking grammar, spelling, and clarity",
+                        "Suggesting ways to strengthen an argument",
+                        "Identifying gaps or weaknesses in your work",
+                        "Getting feedback on artist statements or project descriptions"
+                    ],
+                    "Technical Work": [
+                        "Debugging code or explaining error messages",
+                        "Reviewing your solutions for logical errors",
+                        "Writing code or solving technical problems",
+                        "Analyzing data"
+                    ],
+                    "Content Creation": [
+                        "Generating first drafts of written work",
+                        "Generating examples or sample content",
+                        "Answering direct questions about the assignment",
+                        "Completing portions of the assignment directly",
+                        "Iterating on AI output to reach a final product",
+                        "Producing translations"
+                    ],
+                    "Creative Production": [
+                        "Exploring different artistic styles or approaches",
+                        "Getting feedback on creative choices like composition, color, or pacing",
+                        "Generating prompts or constraints to spark creativity",
+                        "Creating or refining visual materials",
+                        "Generating reference images or mood boards",
+                        "Creating rough sketches or mockups of ideas",
+                        "Producing musical elements or sound design",
+                        "Generating dialogue or script drafts",
+                        "Assisting with choreography, staging, or blocking ideas",
+                        "Creating visual assets for a larger project",
+                        "Generating variations on a creative theme"
+                    ]
+                },
+                unacceptableUses: {
+                    "Quality and Integrity": [
+                        "Submitting AI output without reviewing it for accuracy and quality",
+                        "Submitting work you cannot explain or defend",
+                        "Claiming understanding of material you have not actually learned",
+                        "Ignoring discipline-specific standards for citation or attribution"
+                    ]
+                }
+            }
+        };
+
+        // State for selected uses
+        let selectedPlanningUses = {};
+        let selectedFullUses = {};
+        let selectedUnacceptableUses = {};
+        let currentTab = 'html';
+
+        // SVG icons
+        const svgIcons = {
+            none: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="22" fill="#fef2f2" stroke="#dc2626" stroke-width="2"/>
+                <circle cx="24" cy="24" r="16" fill="#fecaca"/>
+                <path d="M16 16L32 32M32 16L16 32" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+            </svg>`,
+            planning: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="22" fill="#fefce8" stroke="#ca8a04" stroke-width="2"/>
+                <circle cx="24" cy="24" r="16" fill="#fef08a"/>
+                <circle cx="24" cy="24" r="3" fill="#ca8a04"/>
+                <polygon points="24,10 27,22 24,24 21,22" fill="#dc2626"/>
+                <polygon points="24,38 21,26 24,24 27,26" fill="#f5f5f4"/>
+                <polygon points="10,24 22,21 24,24 22,27" fill="#f5f5f4"/>
+                <polygon points="38,24 26,27 24,24 26,21" fill="#f5f5f4"/>
+                <circle cx="24" cy="24" r="10" stroke="#ca8a04" stroke-width="1.5" fill="none"/>
+            </svg>`,
+            full: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="24" cy="24" r="22" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+                <circle cx="24" cy="24" r="16" fill="#bbf7d0"/>
+                <path d="M16 24L22 30L34 18" stroke="#16a34a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>`
+        };
+
+        const colorClasses = {
+            none: 'red',
+            planning: 'yellow',
+            full: 'green'
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCheckboxes();
+            attachEventListeners();
+            loadStateFromUrl();
+            updateOutput();
+        });
+
+        function initializeCheckboxes() {
+            // Planning uses (grouped)
+            const planningList = document.getElementById('planningUsesList');
+            planningList.innerHTML = '<button class="section-toggle-btn" onclick="toggleAllInSection(\'planning\')">Select All / Deselect All</button>';
+            
+            Object.entries(categories.planning.acceptableUses).forEach(([groupName, uses]) => {
+                let groupHtml = `<div class="use-category">`;
+                groupHtml += `<div class="use-category-header">`;
+                groupHtml += `<span class="use-category-title">${groupName}</span>`;
+                groupHtml += `<button class="toggle-all-btn" onclick="toggleGroup('planning', '${groupName}')">toggle this category</button>`;
+                groupHtml += `</div>`;
+                
+                uses.forEach((use, index) => {
+                    const key = `${groupName}_${index}`;
+                    selectedPlanningUses[key] = true;
+                    groupHtml += `
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="planning_${key}" checked onchange="updateSelectedUse('planning', '${key}', this.checked)">
+                            <label for="planning_${key}">${use}</label>
+                        </div>
+                    `;
+                });
+                groupHtml += `</div>`;
+                planningList.innerHTML += groupHtml;
+            });
+
+            // Full uses (grouped)
+            const fullList = document.getElementById('fullUsesList');
+            fullList.innerHTML = '<button class="section-toggle-btn" onclick="toggleAllInSection(\'full\')">Select All / Deselect All</button>';
+            
+            Object.entries(categories.full.acceptableUses).forEach(([groupName, uses]) => {
+                let groupHtml = `<div class="use-category">`;
+                groupHtml += `<div class="use-category-header">`;
+                groupHtml += `<span class="use-category-title">${groupName}</span>`;
+                groupHtml += `<button class="toggle-all-btn" onclick="toggleGroup('full', '${groupName}')">toggle this category</button>`;
+                groupHtml += `</div>`;
+                
+                uses.forEach((use, index) => {
+                    const key = `${groupName}_${index}`;
+                    selectedFullUses[key] = true;
+                    groupHtml += `
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="full_${key}" checked onchange="updateSelectedUse('full', '${key}', this.checked)">
+                            <label for="full_${key}">${use}</label>
+                        </div>
+                    `;
+                });
+                groupHtml += `</div>`;
+                fullList.innerHTML += groupHtml;
+            });
+
+            updateUnacceptableUses();
+        }
+
+        function updateUnacceptableUses() {
+            const category = document.querySelector('input[name="category"]:checked').value;
+            const unacceptableList = document.getElementById('unacceptableUsesList');
+            unacceptableList.innerHTML = '<button class="section-toggle-btn" onclick="toggleAllInSection(\'unacceptable\')">Select All / Deselect All</button>';
+            selectedUnacceptableUses = {};
+
+            Object.entries(categories[category].unacceptableUses).forEach(([groupName, uses]) => {
+                let groupHtml = `<div class="use-category">`;
+                groupHtml += `<div class="use-category-header">`;
+                groupHtml += `<span class="use-category-title">${groupName}</span>`;
+                groupHtml += `<button class="toggle-all-btn" onclick="toggleGroup('unacceptable', '${groupName}')">toggle this category</button>`;
+                groupHtml += `</div>`;
+                
+                uses.forEach((use, index) => {
+                    const key = `${groupName}_${index}`;
+                    selectedUnacceptableUses[key] = true;
+                    groupHtml += `
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="unacceptable_${key}" checked onchange="updateSelectedUse('unacceptable', '${key}', this.checked)">
+                            <label for="unacceptable_${key}">${use}</label>
+                        </div>
+                    `;
+                });
+                groupHtml += `</div>`;
+                unacceptableList.innerHTML += groupHtml;
+            });
+        }
+
+        function toggleGroup(type, groupName) {
+            const selectedUses = type === 'planning' ? selectedPlanningUses : 
+                                 type === 'full' ? selectedFullUses : selectedUnacceptableUses;
+            
+            // Check if all in group are currently selected
+            const groupKeys = Object.keys(selectedUses).filter(key => key.startsWith(groupName + '_'));
+            const allSelected = groupKeys.every(key => selectedUses[key]);
+            
+            // Toggle all in group
+            groupKeys.forEach(key => {
+                selectedUses[key] = !allSelected;
+                const checkbox = document.getElementById(`${type}_${key}`);
+                if (checkbox) checkbox.checked = !allSelected;
+            });
+            
+            updateOutput();
+        }
+
+        function toggleAllInSection(type) {
+            const selectedUses = type === 'planning' ? selectedPlanningUses : 
+                                 type === 'full' ? selectedFullUses : selectedUnacceptableUses;
+            
+            // Check if all are currently selected
+            const allSelected = Object.values(selectedUses).every(v => v);
+            
+            // Toggle all
+            Object.keys(selectedUses).forEach(key => {
+                selectedUses[key] = !allSelected;
+                const checkbox = document.getElementById(`${type}_${key}`);
+                if (checkbox) checkbox.checked = !allSelected;
+            });
+            
+            updateOutput();
+        }
+
+        function updateSelectedUse(type, key, checked) {
+            if (type === 'planning') {
+                selectedPlanningUses[key] = checked;
+            } else if (type === 'full') {
+                selectedFullUses[key] = checked;
+            } else if (type === 'unacceptable') {
+                selectedUnacceptableUses[key] = checked;
+            }
+            updateOutput();
+        }
+
+        function attachEventListeners() {
+            // Category change
+            document.querySelectorAll('input[name="category"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    updateVisibility();
+                    updateUnacceptableUses();
+                    updateOutput();
+                });
+            });
+
+            // Include options
+            document.getElementById('includeRationale').addEventListener('change', updateOutput);
+            document.getElementById('includeAcceptable').addEventListener('change', updateOutput);
+            document.getElementById('includeUnacceptable').addEventListener('change', updateOutput);
+
+            // Custom inputs
+            document.getElementById('customRationale').addEventListener('input', updateOutput);
+            document.getElementById('customAcceptable').addEventListener('input', updateOutput);
+            document.getElementById('customUnacceptable').addEventListener('input', updateOutput);
+        }
+
+        function updateVisibility() {
+            const category = document.querySelector('input[name="category"]:checked').value;
+            
+            // Show/hide acceptable uses option and groups
+            const acceptableOption = document.getElementById('acceptableUsesOption');
+            const planningGroup = document.getElementById('planningUsesGroup');
+            const fullGroup = document.getElementById('fullUsesGroup');
+            const customAcceptableGroup = document.getElementById('customAcceptableGroup');
+            
+            if (category === 'none') {
+                acceptableOption.classList.add('hidden');
+                planningGroup.classList.add('hidden');
+                fullGroup.classList.add('hidden');
+                customAcceptableGroup.classList.add('hidden');
+            } else {
+                acceptableOption.classList.remove('hidden');
+                customAcceptableGroup.classList.remove('hidden');
+                
+                if (category === 'planning') {
+                    planningGroup.classList.remove('hidden');
+                    fullGroup.classList.add('hidden');
+                } else {
+                    planningGroup.classList.add('hidden');
+                    fullGroup.classList.remove('hidden');
+                }
+            }
+        }
+
+        function toggleCollapsible(header) {
+            header.classList.toggle('open');
+            header.nextElementSibling.classList.toggle('open');
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tab);
+            });
+            document.getElementById('outputPreviewHtml').classList.toggle('hidden', tab !== 'html');
+            document.getElementById('outputPreview').classList.toggle('hidden', tab !== 'text');
+        }
+
+        function updateOutput() {
+            const category = document.querySelector('input[name="category"]:checked').value;
+            const includeRationale = document.getElementById('includeRationale').checked;
+            const includeAcceptable = document.getElementById('includeAcceptable').checked;
+            const includeUnacceptable = document.getElementById('includeUnacceptable').checked;
+            
+            const customRationale = document.getElementById('customRationale').value.trim();
+            const customAcceptable = document.getElementById('customAcceptable').value.trim();
+            const customUnacceptable = document.getElementById('customUnacceptable').value.trim();
+
+            const data = categories[category];
+            
+            // Build acceptable uses list from grouped structure
+            let acceptableUsesList = [];
+            if (category !== 'none' && includeAcceptable) {
+                const selectedUses = category === 'planning' ? selectedPlanningUses : selectedFullUses;
+                const usesData = categories[category].acceptableUses;
+                
+                Object.entries(usesData).forEach(([groupName, uses]) => {
+                    uses.forEach((use, index) => {
+                        const key = `${groupName}_${index}`;
+                        if (selectedUses[key]) {
+                            acceptableUsesList.push(use);
+                        }
+                    });
+                });
+                
+                if (customAcceptable) {
+                    customAcceptable.split('\n').forEach(line => {
+                        if (line.trim()) acceptableUsesList.push(line.trim());
+                    });
+                }
+            }
+
+            // Build unacceptable uses list from grouped structure
+            let unacceptableUsesList = [];
+            if (includeUnacceptable) {
+                const usesData = categories[category].unacceptableUses;
+                
+                Object.entries(usesData).forEach(([groupName, uses]) => {
+                    uses.forEach((use, index) => {
+                        const key = `${groupName}_${index}`;
+                        if (selectedUnacceptableUses[key]) {
+                            unacceptableUsesList.push(use);
+                        }
+                    });
+                });
+                
+                if (customUnacceptable) {
+                    customUnacceptable.split('\n').forEach(line => {
+                        if (line.trim()) unacceptableUsesList.push(line.trim());
+                    });
+                }
+            }
+
+            // Build rationale text
+            let rationaleText = data.rationale;
+            if (customRationale) {
+                rationaleText += ' ' + customRationale;
+            }
+            
+            // For HTML, convert newlines to <br>
+            const rationaleTextHtml = rationaleText.replace(/\n/g, '<br>');
+
+            // Generate HTML output with inline styles for portability
+            const borderColors = {
+                none: '#dc2626',
+                planning: '#ca8a04',
+                full: '#16a34a'
+            };
+
+            let html = `<div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px;">`;
+            html += `<h3 style="font-size: 1.1rem; font-weight: 600; margin: 0 0 20px 0; padding-bottom: 16px; border-bottom: 2px solid ${borderColors[category]};">`;
+            html += svgIcons[category];
+            html += ` ${data.title}</h3>`;
+
+            if (includeRationale) {
+                html += `<div style="margin-bottom: 20px;">`;
+                html += `<h4 style="font-size: 0.8rem; font-weight: 600; color: #57534e; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 8px 0;">Rationale</h4>`;
+                html += `<p style="font-size: 0.95rem; line-height: 1.6; margin: 0;">${rationaleTextHtml}</p>`;
+                html += `</div>`;
+            }
+
+            if (acceptableUsesList.length > 0) {
+                html += `<div style="margin-bottom: 20px;">`;
+                html += `<h4 style="font-size: 0.8rem; font-weight: 600; color: #57534e; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 8px 0;">Acceptable Uses</h4>`;
+                html += `<ul style="margin: 0; padding-left: 20px; font-size: 0.9rem; line-height: 1.8;">`;
+                acceptableUsesList.forEach(use => {
+                    html += `<li style="margin-bottom: 4px;">${use}</li>`;
+                });
+                html += `</ul></div>`;
+            }
+
+            if (unacceptableUsesList.length > 0) {
+                html += `<div style="margin-bottom: 0;">`;
+                html += `<h4 style="font-size: 0.8rem; font-weight: 600; color: #57534e; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 8px 0;">Unacceptable Uses</h4>`;
+                html += `<ul style="margin: 0; padding-left: 20px; font-size: 0.9rem; line-height: 1.8;">`;
+                unacceptableUsesList.forEach(use => {
+                    html += `<li style="margin-bottom: 4px;">${use}</li>`;
+                });
+                html += `</ul></div>`;
+            }
+
+            html += `</div>`;
+            
+            // For display, use the class-based version
+            let displayHtml = `<div class="policy-card">`;
+            displayHtml += `<div class="policy-header ${colorClasses[category]}">`;
+            displayHtml += svgIcons[category];
+            displayHtml += `<h3>${data.title}</h3>`;
+            displayHtml += `</div>`;
+
+            if (includeRationale) {
+                displayHtml += `<div class="policy-section">`;
+                displayHtml += `<h4>Rationale</h4>`;
+                displayHtml += `<p>${rationaleTextHtml}</p>`;
+                displayHtml += `</div>`;
+            }
+
+            if (acceptableUsesList.length > 0) {
+                displayHtml += `<div class="policy-section">`;
+                displayHtml += `<h4>Acceptable Uses</h4>`;
+                displayHtml += `<ul>`;
+                acceptableUsesList.forEach(use => {
+                    displayHtml += `<li>${use}</li>`;
+                });
+                displayHtml += `</ul></div>`;
+            }
+
+            if (unacceptableUsesList.length > 0) {
+                displayHtml += `<div class="policy-section">`;
+                displayHtml += `<h4>Unacceptable Uses</h4>`;
+                displayHtml += `<ul>`;
+                unacceptableUsesList.forEach(use => {
+                    displayHtml += `<li>${use}</li>`;
+                });
+                displayHtml += `</ul></div>`;
+            }
+
+            displayHtml += `</div>`;
+            
+            document.getElementById('outputPreviewHtml').innerHTML = displayHtml;
+            document.getElementById('outputPreviewHtml').dataset.copyHtml = html;
+
+            // Generate text output
+            let text = '';
+            text += `AI USE POLICY\n${data.title}\n\n`;
+
+            if (includeRationale) {
+                text += `RATIONALE\n${rationaleText}\n\n`;
+            }
+
+            if (acceptableUsesList.length > 0) {
+                text += `ACCEPTABLE USES\n`;
+                acceptableUsesList.forEach(use => {
+                    text += `• ${use}\n`;
+                });
+                text += '\n';
+            }
+
+            if (unacceptableUsesList.length > 0) {
+                text += `UNACCEPTABLE USES\n`;
+                unacceptableUsesList.forEach(use => {
+                    text += `• ${use}\n`;
+                });
+            }
+
+            document.getElementById('outputPreview').textContent = text.trim();
+        }
+
+        const emojiIcons = {
+            none: '🚫',
+            planning: '🧭',
+            full: '✅'
+        };
+
+        async function copyToClipboard() {
+            if (currentTab === 'html') {
+                try {
+                    // Get current category to get the right emoji
+                    const category = document.querySelector('input[name="category"]:checked').value;
+                    const emoji = emojiIcons[category];
+                    
+                    // Get the HTML and replace the SVG with just the emoji
+                    let html = document.getElementById('outputPreviewHtml').dataset.copyHtml;
+                    html = html.replace(/<svg[^>]*>[\s\S]*?<\/svg>/, emoji);
+                    
+                    // Copy as rendered HTML with plain text fallback
+                    const htmlBlob = new Blob([html], { type: 'text/html' });
+                    const textBlob = new Blob([document.getElementById('outputPreview').textContent], { type: 'text/plain' });
+                    
+                    const clipboardItem = new ClipboardItem({ 
+                        'text/html': htmlBlob,
+                        'text/plain': textBlob
+                    });
+                    
+                    await navigator.clipboard.write([clipboardItem]);
+                    
+                    const success = document.getElementById('copySuccess');
+                    success.classList.add('show');
+                    setTimeout(() => success.classList.remove('show'), 2000);
+                } catch (err) {
+                    console.error('Copy failed:', err);
+                    // Fallback to plain text
+                    const text = document.getElementById('outputPreview').textContent;
+                    navigator.clipboard.writeText(text);
+                    
+                    const success = document.getElementById('copySuccess');
+                    success.classList.add('show');
+                    setTimeout(() => success.classList.remove('show'), 2000);
+                }
+            } else {
+                // Copy as plain text
+                const text = document.getElementById('outputPreview').textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    const success = document.getElementById('copySuccess');
+                    success.classList.add('show');
+                    setTimeout(() => success.classList.remove('show'), 2000);
+                });
+            }
+        }
+
+        function resetForm() {
+            // Reset category
+            document.querySelector('input[name="category"][value="none"]').checked = true;
+            
+            // Reset include options
+            document.getElementById('includeRationale').checked = true;
+            document.getElementById('includeAcceptable').checked = true;
+            document.getElementById('includeUnacceptable').checked = true;
+            
+            // Reset custom inputs
+            document.getElementById('customRationale').value = '';
+            document.getElementById('customAcceptable').value = '';
+            document.getElementById('customUnacceptable').value = '';
+            
+            // Reset all use checkboxes
+            Object.keys(selectedPlanningUses).forEach(key => {
+                selectedPlanningUses[key] = true;
+                const checkbox = document.getElementById(`planning_${key}`);
+                if (checkbox) checkbox.checked = true;
+            });
+            
+            Object.keys(selectedFullUses).forEach(key => {
+                selectedFullUses[key] = true;
+                const checkbox = document.getElementById(`full_${key}`);
+                if (checkbox) checkbox.checked = true;
+            });
+            
+            updateVisibility();
+            updateUnacceptableUses();
+            updateOutput();
+        }
+
+        // Initial visibility update
+        updateVisibility();
+
+        function generateShareUrl() {
+            const category = document.querySelector('input[name="category"]:checked').value;
+            const includeRationale = document.getElementById('includeRationale').checked ? '1' : '0';
+            const includeAcceptable = document.getElementById('includeAcceptable').checked ? '1' : '0';
+            const includeUnacceptable = document.getElementById('includeUnacceptable').checked ? '1' : '0';
+            
+            const customRationale = document.getElementById('customRationale').value;
+            const customAcceptable = document.getElementById('customAcceptable').value;
+            const customUnacceptable = document.getElementById('customUnacceptable').value;
+
+            // Get deselected items (more efficient since most are selected by default)
+            const deselectedPlanning = Object.entries(selectedPlanningUses)
+                .filter(([k, v]) => !v)
+                .map(([k]) => k)
+                .join(',');
+            
+            const deselectedFull = Object.entries(selectedFullUses)
+                .filter(([k, v]) => !v)
+                .map(([k]) => k)
+                .join(',');
+            
+            const deselectedUnacceptable = Object.entries(selectedUnacceptableUses)
+                .filter(([k, v]) => !v)
+                .map(([k]) => k)
+                .join(',');
+
+            const params = new URLSearchParams();
+            params.set('cat', category);
+            params.set('ir', includeRationale);
+            params.set('ia', includeAcceptable);
+            params.set('iu', includeUnacceptable);
+            
+            if (deselectedPlanning) params.set('dp', deselectedPlanning);
+            if (deselectedFull) params.set('df', deselectedFull);
+            if (deselectedUnacceptable) params.set('du', deselectedUnacceptable);
+            
+            if (customRationale) params.set('cr', customRationale);
+            if (customAcceptable) params.set('ca', customAcceptable);
+            if (customUnacceptable) params.set('cu', customUnacceptable);
+
+            return window.location.origin + window.location.pathname + '?' + params.toString();
+        }
+
+        function loadStateFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            
+            // Check for student (read-only) view
+            const isStudentView = params.get('view') === 'student';
+            if (isStudentView) {
+                document.body.classList.add('student-view');
+                // Update header for student view
+                document.querySelector('h1').textContent = 'AI Use Policy';
+                document.querySelector('.output-panel .panel-header h2').textContent = 'Policy Details';
+            }
+            
+            if (!params.has('cat')) {
+                // No state in URL, just update visibility for default state
+                updateVisibility();
+                return;
+            }
+            
+            // Set category
+            const category = params.get('cat');
+            const categoryRadio = document.querySelector(`input[name="category"][value="${category}"]`);
+            if (categoryRadio) categoryRadio.checked = true;
+            
+            // Set include options
+            if (params.has('ir')) {
+                document.getElementById('includeRationale').checked = params.get('ir') === '1';
+            }
+            if (params.has('ia')) {
+                document.getElementById('includeAcceptable').checked = params.get('ia') === '1';
+            }
+            if (params.has('iu')) {
+                document.getElementById('includeUnacceptable').checked = params.get('iu') === '1';
+            }
+            
+            // Set custom fields
+            if (params.has('cr')) {
+                document.getElementById('customRationale').value = params.get('cr');
+            }
+            if (params.has('ca')) {
+                document.getElementById('customAcceptable').value = params.get('ca');
+            }
+            if (params.has('cu')) {
+                document.getElementById('customUnacceptable').value = params.get('cu');
+            }
+            
+            // Update visibility and unacceptable uses for the selected category
+            updateVisibility();
+            updateUnacceptableUses();
+            
+            // Apply deselected planning uses
+            if (params.has('dp') && params.get('dp')) {
+                const deselected = params.get('dp').split(',');
+                deselected.forEach(key => {
+                    if (selectedPlanningUses.hasOwnProperty(key)) {
+                        selectedPlanningUses[key] = false;
+                        const checkbox = document.getElementById(`planning_${key}`);
+                        if (checkbox) checkbox.checked = false;
+                    }
+                });
+            }
+            
+            // Apply deselected full uses
+            if (params.has('df') && params.get('df')) {
+                const deselected = params.get('df').split(',');
+                deselected.forEach(key => {
+                    if (selectedFullUses.hasOwnProperty(key)) {
+                        selectedFullUses[key] = false;
+                        const checkbox = document.getElementById(`full_${key}`);
+                        if (checkbox) checkbox.checked = false;
+                    }
+                });
+            }
+            
+            // Apply deselected unacceptable uses
+            if (params.has('du') && params.get('du')) {
+                const deselected = params.get('du').split(',');
+                deselected.forEach(key => {
+                    if (selectedUnacceptableUses.hasOwnProperty(key)) {
+                        selectedUnacceptableUses[key] = false;
+                        const checkbox = document.getElementById(`unacceptable_${key}`);
+                        if (checkbox) checkbox.checked = false;
+                    }
+                });
+            }
+        }
+
+        function shareWithColleagues() {
+            const url = generateShareUrl();
+            navigator.clipboard.writeText(url).then(() => {
+                const success = document.getElementById('copySuccess');
+                success.textContent = 'Colleague link copied to clipboard!';
+                success.classList.add('show');
+                setTimeout(() => {
+                    success.classList.remove('show');
+                    success.textContent = 'Copied to clipboard!';
+                }, 2000);
+            });
+        }
+
+        function shareWithStudents() {
+            let url = generateShareUrl();
+            // Add readonly parameter for student view
+            url += '&view=student';
+            navigator.clipboard.writeText(url).then(() => {
+                const success = document.getElementById('copySuccess');
+                success.textContent = 'Student link copied to clipboard!';
+                success.classList.add('show');
+                setTimeout(() => {
+                    success.classList.remove('show');
+                    success.textContent = 'Copied to clipboard!';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
