@@ -235,6 +235,25 @@
             user-select: none;
         }
 
+        /* Section Header with Checkbox */
+        .section-header-with-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header-with-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--carthage-blue);
+            cursor: pointer;
+        }
+
+        .section-header-with-checkbox h3,
+        .section-header-with-checkbox h4 {
+            margin: 0;
+        }
+
         /* Custom Input */
         .custom-input-section {
             margin-top: 24px;
@@ -700,29 +719,24 @@
                         </label>
                     </div>
 
-                    <!-- Include Options -->
-                    <div class="options-section">
-                        <h3>Include in Output</h3>
-                        <div class="checkbox-group">
-                            <div class="checkbox-item">
-                                <input type="checkbox" id="includeRationale" checked>
-                                <label for="includeRationale">Rationale statement</label>
-                            </div>
-                            <div class="checkbox-item" id="acceptableUsesOption">
-                                <input type="checkbox" id="includeAcceptable" checked>
-                                <label for="includeAcceptable">Acceptable uses list</label>
-                            </div>
-                            <div class="checkbox-item" id="unacceptableUsesOption">
-                                <input type="checkbox" id="includeUnacceptable" checked>
-                                <label for="includeUnacceptable">Unacceptable uses list</label>
-                            </div>
+                    <!-- Rationale Editor -->
+                    <div class="acceptable-uses-group" id="rationaleEditorSection">
+                        <div class="section-header-with-checkbox">
+                            <input type="checkbox" id="includeRationale" checked>
+                            <h4><label for="includeRationale">Rationale</label></h4>
+                        </div>
+                        <div class="input-group">
+                            <textarea id="customRationale" rows="4"></textarea>
                         </div>
                     </div>
 
                     <!-- Acceptable Uses Selection (Planning) -->
                     <div class="acceptable-uses-group" id="planningUsesGroup">
                         <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                            <h4>Select Acceptable Uses</h4>
+                            <div class="section-header-with-checkbox">
+                                <input type="checkbox" id="includeAcceptablePlanning" checked onclick="event.stopPropagation(); updateAcceptableCheckbox();">
+                                <h4><label for="includeAcceptablePlanning" onclick="event.stopPropagation();">Select Acceptable Uses</label></h4>
+                            </div>
                             <svg class="toggle-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                             </svg>
@@ -731,13 +745,20 @@
                             <div class="checkbox-group" id="planningUsesList">
                                 <!-- Populated by JS -->
                             </div>
+                            <div class="input-group" style="margin-top: 16px;">
+                                <label for="customAcceptablePlanning">Additional Acceptable Uses (one per line)</label>
+                                <textarea id="customAcceptablePlanning" placeholder="Enter custom acceptable uses..."></textarea>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Acceptable Uses Selection (Full) -->
                     <div class="acceptable-uses-group hidden" id="fullUsesGroup">
                         <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                            <h4>Select Acceptable Uses</h4>
+                            <div class="section-header-with-checkbox">
+                                <input type="checkbox" id="includeAcceptableFull" checked onclick="event.stopPropagation(); updateAcceptableCheckbox();">
+                                <h4><label for="includeAcceptableFull" onclick="event.stopPropagation();">Select Acceptable Uses</label></h4>
+                            </div>
                             <svg class="toggle-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                             </svg>
@@ -746,13 +767,20 @@
                             <div class="checkbox-group" id="fullUsesList">
                                 <!-- Populated by JS -->
                             </div>
+                            <div class="input-group" style="margin-top: 16px;">
+                                <label for="customAcceptableFull">Additional Acceptable Uses (one per line)</label>
+                                <textarea id="customAcceptableFull" placeholder="Enter custom acceptable uses..."></textarea>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Unacceptable Uses Selection -->
                     <div class="unacceptable-uses-group" id="unacceptableUsesGroup">
                         <div class="collapsible-header" onclick="toggleCollapsible(this)">
-                            <h4>Select Unacceptable Uses</h4>
+                            <div class="section-header-with-checkbox">
+                                <input type="checkbox" id="includeUnacceptable" checked onclick="event.stopPropagation(); updateOutput();">
+                                <h4><label for="includeUnacceptable" onclick="event.stopPropagation();">Select Unacceptable Uses</label></h4>
+                            </div>
                             <svg class="toggle-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
                                 <path d="M5 8L10 13L15 8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                             </svg>
@@ -761,23 +789,10 @@
                             <div class="checkbox-group" id="unacceptableUsesList">
                                 <!-- Populated by JS -->
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Custom Additions -->
-                    <div class="custom-input-section">
-                        <h3>Custom Additions</h3>
-                        <div class="input-group">
-                            <label for="customRationale">Additional Rationale</label>
-                            <textarea id="customRationale" placeholder="Add any custom rationale text..."></textarea>
-                        </div>
-                        <div class="input-group" id="customAcceptableGroup">
-                            <label for="customAcceptable">Additional Acceptable Uses (one per line)</label>
-                            <textarea id="customAcceptable" placeholder="Enter custom acceptable uses..."></textarea>
-                        </div>
-                        <div class="input-group" id="customUnacceptableGroup">
-                            <label for="customUnacceptable">Additional Unacceptable Uses (one per line)</label>
-                            <textarea id="customUnacceptable" placeholder="Enter custom unacceptable uses..."></textarea>
+                            <div class="input-group" style="margin-top: 16px;">
+                                <label for="customUnacceptable">Additional Unacceptable Uses (one per line)</label>
+                                <textarea id="customUnacceptable" placeholder="Enter custom unacceptable uses..."></textarea>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -976,6 +991,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             initializeCheckboxes();
             attachEventListeners();
+            updateRationaleText();
             loadStateFromUrl();
             updateOutput();
         });
@@ -1108,11 +1124,16 @@
             updateOutput();
         }
 
+        function updateAcceptableCheckbox() {
+            updateOutput();
+        }
+
         function attachEventListeners() {
             // Category change
             document.querySelectorAll('input[name="category"]').forEach(radio => {
                 radio.addEventListener('change', function() {
                     updateVisibility();
+                    updateRationaleText();
                     updateUnacceptableUses();
                     updateOutput();
                 });
@@ -1120,33 +1141,34 @@
 
             // Include options
             document.getElementById('includeRationale').addEventListener('change', updateOutput);
-            document.getElementById('includeAcceptable').addEventListener('change', updateOutput);
+            document.getElementById('includeAcceptablePlanning').addEventListener('change', updateOutput);
+            document.getElementById('includeAcceptableFull').addEventListener('change', updateOutput);
             document.getElementById('includeUnacceptable').addEventListener('change', updateOutput);
 
             // Custom inputs
             document.getElementById('customRationale').addEventListener('input', updateOutput);
-            document.getElementById('customAcceptable').addEventListener('input', updateOutput);
+            document.getElementById('customAcceptablePlanning').addEventListener('input', updateOutput);
+            document.getElementById('customAcceptableFull').addEventListener('input', updateOutput);
             document.getElementById('customUnacceptable').addEventListener('input', updateOutput);
+        }
+
+        function updateRationaleText() {
+            const category = document.querySelector('input[name="category"]:checked').value;
+            const rationaleTextbox = document.getElementById('customRationale');
+            rationaleTextbox.value = categories[category].rationale;
         }
 
         function updateVisibility() {
             const category = document.querySelector('input[name="category"]:checked').value;
             
-            // Show/hide acceptable uses option and groups
-            const acceptableOption = document.getElementById('acceptableUsesOption');
+            // Show/hide acceptable uses groups
             const planningGroup = document.getElementById('planningUsesGroup');
             const fullGroup = document.getElementById('fullUsesGroup');
-            const customAcceptableGroup = document.getElementById('customAcceptableGroup');
             
             if (category === 'none') {
-                acceptableOption.classList.add('hidden');
                 planningGroup.classList.add('hidden');
                 fullGroup.classList.add('hidden');
-                customAcceptableGroup.classList.add('hidden');
             } else {
-                acceptableOption.classList.remove('hidden');
-                customAcceptableGroup.classList.remove('hidden');
-                
                 if (category === 'planning') {
                     planningGroup.classList.remove('hidden');
                     fullGroup.classList.add('hidden');
@@ -1174,11 +1196,15 @@
         function updateOutput() {
             const category = document.querySelector('input[name="category"]:checked').value;
             const includeRationale = document.getElementById('includeRationale').checked;
-            const includeAcceptable = document.getElementById('includeAcceptable').checked;
+            const includeAcceptable = category === 'planning' 
+                ? document.getElementById('includeAcceptablePlanning').checked
+                : document.getElementById('includeAcceptableFull').checked;
             const includeUnacceptable = document.getElementById('includeUnacceptable').checked;
             
             const customRationale = document.getElementById('customRationale').value.trim();
-            const customAcceptable = document.getElementById('customAcceptable').value.trim();
+            const customAcceptable = category === 'planning' 
+                ? document.getElementById('customAcceptablePlanning').value.trim()
+                : document.getElementById('customAcceptableFull').value.trim();
             const customUnacceptable = document.getElementById('customUnacceptable').value.trim();
 
             const data = categories[category];
@@ -1226,11 +1252,8 @@
                 }
             }
 
-            // Build rationale text
-            let rationaleText = data.rationale;
-            if (customRationale) {
-                rationaleText += ' ' + customRationale;
-            }
+            // Build rationale text (now directly from textbox)
+            let rationaleText = customRationale || data.rationale;
             
             // For HTML, convert newlines to <br>
             const rationaleTextHtml = rationaleText.replace(/\n/g, '<br>');
@@ -1399,12 +1422,13 @@
             
             // Reset include options
             document.getElementById('includeRationale').checked = true;
-            document.getElementById('includeAcceptable').checked = true;
+            document.getElementById('includeAcceptablePlanning').checked = true;
+            document.getElementById('includeAcceptableFull').checked = true;
             document.getElementById('includeUnacceptable').checked = true;
             
             // Reset custom inputs
-            document.getElementById('customRationale').value = '';
-            document.getElementById('customAcceptable').value = '';
+            document.getElementById('customAcceptablePlanning').value = '';
+            document.getElementById('customAcceptableFull').value = '';
             document.getElementById('customUnacceptable').value = '';
             
             // Reset all use checkboxes
@@ -1421,6 +1445,7 @@
             });
             
             updateVisibility();
+            updateRationaleText();
             updateUnacceptableUses();
             updateOutput();
         }
@@ -1431,11 +1456,15 @@
         function generateShareUrl() {
             const category = document.querySelector('input[name="category"]:checked').value;
             const includeRationale = document.getElementById('includeRationale').checked ? '1' : '0';
-            const includeAcceptable = document.getElementById('includeAcceptable').checked ? '1' : '0';
+            const includeAcceptable = category === 'planning' 
+                ? document.getElementById('includeAcceptablePlanning').checked ? '1' : '0'
+                : document.getElementById('includeAcceptableFull').checked ? '1' : '0';
             const includeUnacceptable = document.getElementById('includeUnacceptable').checked ? '1' : '0';
             
             const customRationale = document.getElementById('customRationale').value;
-            const customAcceptable = document.getElementById('customAcceptable').value;
+            const customAcceptable = category === 'planning' 
+                ? document.getElementById('customAcceptablePlanning').value
+                : document.getElementById('customAcceptableFull').value;
             const customUnacceptable = document.getElementById('customUnacceptable').value;
 
             // Get deselected items (more efficient since most are selected by default)
@@ -1499,7 +1528,11 @@
                 document.getElementById('includeRationale').checked = params.get('ir') === '1';
             }
             if (params.has('ia')) {
-                document.getElementById('includeAcceptable').checked = params.get('ia') === '1';
+                if (category === 'planning') {
+                    document.getElementById('includeAcceptablePlanning').checked = params.get('ia') === '1';
+                } else if (category === 'full') {
+                    document.getElementById('includeAcceptableFull').checked = params.get('ia') === '1';
+                }
             }
             if (params.has('iu')) {
                 document.getElementById('includeUnacceptable').checked = params.get('iu') === '1';
@@ -1508,9 +1541,17 @@
             // Set custom fields
             if (params.has('cr')) {
                 document.getElementById('customRationale').value = params.get('cr');
+            } else {
+                // Set default rationale for the selected category
+                updateRationaleText();
             }
             if (params.has('ca')) {
-                document.getElementById('customAcceptable').value = params.get('ca');
+                // Set custom acceptable uses for the current category
+                if (category === 'planning') {
+                    document.getElementById('customAcceptablePlanning').value = params.get('ca');
+                } else if (category === 'full') {
+                    document.getElementById('customAcceptableFull').value = params.get('ca');
+                }
             }
             if (params.has('cu')) {
                 document.getElementById('customUnacceptable').value = params.get('cu');
