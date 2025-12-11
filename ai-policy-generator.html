@@ -885,7 +885,6 @@
                     "Planning and Organization": [
                         "Brainstorming and generating initial ideas",
                         "Creating outlines or organizing structure",
-                        "Breaking a large problem into smaller steps",
                         "Generating questions to consider about a topic",
                         "Clarifying assignment instructions"
                     ],
@@ -904,7 +903,7 @@
                         "Getting feedback on artist statements or project descriptions"
                     ],
                     "Technical Assistance": [
-                        "Debugging code or explaining error messages",
+                        "Debugging code or explaining error messages but not writing code for you",
                         "Reviewing your solutions for logical errors"
                     ],
                     "Creative Exploration": [
@@ -928,7 +927,6 @@
                     "Planning and Organization": [
                         "Brainstorming and generating initial ideas",
                         "Creating outlines or organizing structure",
-                        "Breaking a large problem into smaller steps",
                         "Generating questions to consider about a topic",
                         "Clarifying assignment instructions"
                     ],
@@ -947,9 +945,9 @@
                         "Getting feedback on artist statements or project descriptions"
                     ],
                     "Technical Work": [
+                        "Writing code or solving technical problems",
                         "Debugging code or explaining error messages",
                         "Reviewing your solutions for logical errors",
-                        "Writing code or solving technical problems",
                         "Analyzing data"
                     ],
                     "Content Creation": [
@@ -977,7 +975,7 @@
                 unacceptableUses: {
                     "Quality and Integrity": [
                         "Submitting AI output without reviewing it for accuracy and quality",
-                        "Submitting work you cannot explain or defend",
+                        "Submitting work that you cannot explain or defend",
                         "Claiming understanding of material you have not actually learned",
                         "Ignoring discipline-specific standards for citation or attribution"
                     ]
@@ -1044,10 +1042,10 @@
                 
                 uses.forEach((use, index) => {
                     const key = `${groupName}_${index}`;
-                    selectedPlanningUses[key] = true;
+                    selectedPlanningUses[key] = false;
                     groupHtml += `
                         <div class="checkbox-item">
-                            <input type="checkbox" id="planning_${key}" checked onchange="updateSelectedUse('planning', '${key}', this.checked)">
+                            <input type="checkbox" id="planning_${key}" onchange="updateSelectedUse('planning', '${key}', this.checked)">
                             <label for="planning_${key}">${use}</label>
                         </div>
                     `;
@@ -1069,10 +1067,10 @@
                 
                 uses.forEach((use, index) => {
                     const key = `${groupName}_${index}`;
-                    selectedFullUses[key] = true;
+                    selectedFullUses[key] = false;
                     groupHtml += `
                         <div class="checkbox-item">
-                            <input type="checkbox" id="full_${key}" checked onchange="updateSelectedUse('full', '${key}', this.checked)">
+                            <input type="checkbox" id="full_${key}" onchange="updateSelectedUse('full', '${key}', this.checked)">
                             <label for="full_${key}">${use}</label>
                         </div>
                     `;
@@ -1099,10 +1097,10 @@
                 
                 uses.forEach((use, index) => {
                     const key = `${groupName}_${index}`;
-                    selectedUnacceptableUses[key] = true;
+                    selectedUnacceptableUses[key] = false;
                     groupHtml += `
                         <div class="checkbox-item">
-                            <input type="checkbox" id="unacceptable_${key}" checked onchange="updateSelectedUse('unacceptable', '${key}', this.checked)">
+                            <input type="checkbox" id="unacceptable_${key}" onchange="updateSelectedUse('unacceptable', '${key}', this.checked)">
                             <label for="unacceptable_${key}">${use}</label>
                         </div>
                     `;
@@ -1484,17 +1482,17 @@
             document.getElementById('customAcceptableFull').value = '';
             document.getElementById('customUnacceptable').value = '';
             
-            // Reset all use checkboxes
+            // Reset all use checkboxes to unchecked
             Object.keys(selectedPlanningUses).forEach(key => {
-                selectedPlanningUses[key] = true;
+                selectedPlanningUses[key] = false;
                 const checkbox = document.getElementById(`planning_${key}`);
-                if (checkbox) checkbox.checked = true;
+                if (checkbox) checkbox.checked = false;
             });
             
             Object.keys(selectedFullUses).forEach(key => {
-                selectedFullUses[key] = true;
+                selectedFullUses[key] = false;
                 const checkbox = document.getElementById(`full_${key}`);
-                if (checkbox) checkbox.checked = true;
+                if (checkbox) checkbox.checked = false;
             });
             
             updateVisibility();
@@ -1521,19 +1519,19 @@
                 : document.getElementById('customAcceptableFull').value;
             const customUnacceptable = document.getElementById('customUnacceptable').value;
 
-            // Get deselected items (more efficient since most are selected by default)
-            const deselectedPlanning = Object.entries(selectedPlanningUses)
-                .filter(([k, v]) => !v)
+            // Get selected items (since defaults are now unchecked)
+            const selectedPlanning = Object.entries(selectedPlanningUses)
+                .filter(([k, v]) => v)
                 .map(([k]) => k)
                 .join(',');
             
-            const deselectedFull = Object.entries(selectedFullUses)
-                .filter(([k, v]) => !v)
+            const selectedFull = Object.entries(selectedFullUses)
+                .filter(([k, v]) => v)
                 .map(([k]) => k)
                 .join(',');
             
-            const deselectedUnacceptable = Object.entries(selectedUnacceptableUses)
-                .filter(([k, v]) => !v)
+            const selectedUnacceptable = Object.entries(selectedUnacceptableUses)
+                .filter(([k, v]) => v)
                 .map(([k]) => k)
                 .join(',');
 
@@ -1544,9 +1542,9 @@
             params.set('ia', includeAcceptable);
             params.set('iu', includeUnacceptable);
             
-            if (deselectedPlanning) params.set('dp', deselectedPlanning);
-            if (deselectedFull) params.set('df', deselectedFull);
-            if (deselectedUnacceptable) params.set('du', deselectedUnacceptable);
+            if (selectedPlanning) params.set('sp', selectedPlanning);
+            if (selectedFull) params.set('sf', selectedFull);
+            if (selectedUnacceptable) params.set('su', selectedUnacceptable);
             
             if (customRationale) params.set('cr', customRationale);
             if (customAcceptable) params.set('ca', customAcceptable);
@@ -1621,38 +1619,38 @@
             updateVisibility();
             updateUnacceptableUses();
             
-            // Apply deselected planning uses
-            if (params.has('dp') && params.get('dp')) {
-                const deselected = params.get('dp').split(',');
-                deselected.forEach(key => {
+            // Apply selected planning uses
+            if (params.has('sp') && params.get('sp')) {
+                const selected = params.get('sp').split(',');
+                selected.forEach(key => {
                     if (selectedPlanningUses.hasOwnProperty(key)) {
-                        selectedPlanningUses[key] = false;
+                        selectedPlanningUses[key] = true;
                         const checkbox = document.getElementById(`planning_${key}`);
-                        if (checkbox) checkbox.checked = false;
+                        if (checkbox) checkbox.checked = true;
                     }
                 });
             }
             
-            // Apply deselected full uses
-            if (params.has('df') && params.get('df')) {
-                const deselected = params.get('df').split(',');
-                deselected.forEach(key => {
+            // Apply selected full uses
+            if (params.has('sf') && params.get('sf')) {
+                const selected = params.get('sf').split(',');
+                selected.forEach(key => {
                     if (selectedFullUses.hasOwnProperty(key)) {
-                        selectedFullUses[key] = false;
+                        selectedFullUses[key] = true;
                         const checkbox = document.getElementById(`full_${key}`);
-                        if (checkbox) checkbox.checked = false;
+                        if (checkbox) checkbox.checked = true;
                     }
                 });
             }
             
-            // Apply deselected unacceptable uses
-            if (params.has('du') && params.get('du')) {
-                const deselected = params.get('du').split(',');
-                deselected.forEach(key => {
+            // Apply selected unacceptable uses
+            if (params.has('su') && params.get('su')) {
+                const selected = params.get('su').split(',');
+                selected.forEach(key => {
                     if (selectedUnacceptableUses.hasOwnProperty(key)) {
-                        selectedUnacceptableUses[key] = false;
+                        selectedUnacceptableUses[key] = true;
                         const checkbox = document.getElementById(`unacceptable_${key}`);
-                        if (checkbox) checkbox.checked = false;
+                        if (checkbox) checkbox.checked = true;
                     }
                 });
             }
